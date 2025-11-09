@@ -1,0 +1,50 @@
+/* Create new file: app/CustomNodes.module.css */
+
+.jobNode, .triggerNode {
+  border-radius: 8px;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  font-family: sans-serif;
+  width: 200px;
+}
+
+.jobNode .content {
+  padding: 10px 15px;
+}
+
+.jobNode .title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+}
+
+.jobNode .details {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.jobNode .label {
+  font-weight: 600;
+  color: #333;
+  margin-right: 4px;
+}
+
+.triggerNode {
+  border-color: #007bff;
+  background: #f0f7ff;
+}
+
+.triggerNode .content {
+  padding: 15px;
+  text-align: center;
+}
+
+.triggerNode .title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #004a99;
+}
