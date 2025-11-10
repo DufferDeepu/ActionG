@@ -6,16 +6,19 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "./ui/resizable";
+
 import FlowCanvas from "./FlowCanvas";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import ResizableHandleWrapper from "./ResizableHandleWrapper";
-import { Plus, UploadIcon } from "lucide-react";
+import { CopyIcon, Plus, UploadIcon } from "lucide-react";
 import { Edge, Node, useEdgesState, useNodesState, NodeMouseHandler, NodeTypes } from "reactflow";
-import * as yaml from "js-yaml"; // 1. Import js-yaml
+import * as yaml from "js-yaml"; 
 import Toolbox from "./Toolbox";
-import JobNode, { JobNodeData, Step } from './JobNode'; // 2. Import JobNodeData
+import JobNode, { JobNodeData, Step } from './JobNode'; 
 import TriggerNode from './TriggerNode';
+import JobModal from "./JobModal";
+import { toast } from "sonner";
 
 const nodeTypes: NodeTypes = {
   jobNode: JobNode,
@@ -48,8 +51,6 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-// ... (initialNodes, initialEdges, generateYaml functions are all unchanged) ...
-// (Keep your existing generateYaml function)
 function generateYaml(nodes: Node[], edges: Edge[]): string {
   const yamlConfig: any = {
     name: "My Visual Workflow",
@@ -65,8 +66,6 @@ function generateYaml(nodes: Node[], edges: Edge[]): string {
     const currentJob: any = {
       'runs-on': jobNode.data.runsOn,
       'steps': jobNode.data.steps.map((step: Step) => {
-        // Clean the step object for YAML
-        // (e.g., remove empty 'run' or 'uses' keys)
         const cleanStep: any = { name: step.name };
         if (step.uses) {
           cleanStep.uses = step.uses;
@@ -136,8 +135,8 @@ export default function Editor() {
     if (sourceNode) {
       newEdge = {
         id: `e-${sourceNode.id}-${newNodeId}`,
-        source: sourceNode.id, // The ID of the selected node or trigger
-        target: newNodeId,     // The ID of our new node
+        source: sourceNode.id,
+        target: newNodeId,  
         animated: true,
       };
     }
@@ -147,9 +146,10 @@ export default function Editor() {
     if (newEdge) {
       setEdges((currentEdges) => currentEdges.concat(newEdge));
     }
-  }, [nodes, setNodes, setEdges]); // 'nodes', 'setNodes', and 'setEdges' are already dependencies // <-- Add 'nodes' and 'setEdges' to the dependency array
 
-  // ... (importYaml, handleImport functions are unchanged) ...
+    toast.success("Node added successfully");
+  }, [nodes, setNodes, setEdges]); 
+ 
   const importYaml = useCallback((yamlString: string) => {
     try {
       const configObject: any = yaml.load(yamlString);
@@ -219,30 +219,54 @@ export default function Editor() {
   }, [setNodes, setEdges]);
   const handleImport = useCallback(() => {
     importYaml(yamlInput);
+    toast.success("File imported successfully!");
   }, [importYaml, yamlInput]);
   
-  // ... (useEffect for YAML generation is unchanged) ...
   useEffect(() => {
     const newYaml = generateYaml(nodes, edges);
     setYamlOutput(newYaml);
   }, [nodes, edges]);
 
-  // 5. Add handler for double-clicking a node
   const handleNodeDoubleClick: NodeMouseHandler = useCallback((event, node) => {
     if (node.type === 'jobNode') {
       setEditingNode(node);
       setIsModalOpen(true);
     }
-    // You could add an 'else if' for 'triggerNode' here later
   }, []);
+
+  const handleModalSave = (nodeId: string, newData: JobNodeData) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...newData,
+            },
+          };
+        }
+        return node;
+      })
+    );
+    setIsModalOpen(false);
+    setEditingNode(null);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingNode(null);
+  };
+
 
 
   return (
+    <>
     <div className="h-full w-full border-none rounded-2xl">
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel
           defaultSize={35}
-          className="h-full max-w-[720px] min-w-[220px]"
+          className="h-full max-w-[500px] min-w-[220px]"
         >
           <ResizablePanelGroup
             direction="vertical"
@@ -278,9 +302,25 @@ export default function Editor() {
             {/* --- Bottom Section --- */}
             <ResizablePanel defaultSize={55} className="h-full">
               <div className="p-2 flex flex-col h-full bg-secondary rounded-2xl border border-primary/10">
-                <h5 className="font-medium tracking-tight mb-1 ml-2">
+                <div className="flex justify-between items-center mb-1">
+                <h5 className="font-medium tracking-tight ml-2">
                   Generated <span className="font-bold">YAML</span>
                 </h5>
+                <Button 
+                  className="w-fit"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(yamlOutput);
+                      toast.success("YAML Copied to Clipboard")
+                    } catch (err) {
+                      console.error("Failed to copy", err);
+                      toast.error("Failed to copy")
+                    }
+                  }}
+                >
+                  <CopyIcon className="size-3.5" />
+                </Button>
+                </div>
                 <Textarea
                   className="flex-1 w-full border resize-none"
                   value={yamlOutput}
@@ -313,5 +353,15 @@ export default function Editor() {
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
+
+   
+      {isModalOpen && editingNode && (
+        <JobModal
+          node={editingNode}
+          onClose={handleModalClose}
+          onSave={handleModalSave}
+        />
+      )}
+    </>
   );
 }

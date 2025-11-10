@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { onest } from "@/lib/fonts";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "ActionG",
@@ -25,6 +26,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
         {children}
+        <Toaster position="top-center" />
         </ThemeProvider>
       </body>
     </html>

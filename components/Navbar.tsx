@@ -36,7 +36,7 @@ export default function Navbar() {
         className="m-2 h-6"
         />
         <Link
-          href="https://github.com/keshav-exe/wallpaper-app"
+          href="https://github.com/DufferDeepu/ActionG"
           target="_blank"
         >
           <Button variant="accent">

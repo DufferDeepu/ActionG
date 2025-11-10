@@ -11,10 +11,10 @@ export type TriggerNodeData = {
 
 export default function TriggerNode({ data, isConnectable }: NodeProps<TriggerNodeData>) {
   return (
-    <div className={styles.triggerNode}>
+    <div className="rounded-lg border-2 border-slate-400 bg-blue-50 shadow-md font-sans w-[180px]">
       {/* Node Content */}
-      <div className={styles.content}>
-        <div className={styles.title}>
+      <div className="p-4 text-center">
+        <div className="text-base font-semibold text-gray-800">
           <strong>{data.trigger}</strong>
         </div>
       </div>

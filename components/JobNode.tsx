@@ -1,41 +1,35 @@
-// In app/JobNode.tsx
 'use client';
 
 import React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import styles from './CustomNodes.module.css';
 
-// 1. CREATE AND EXPORT THIS 'Step' TYPE
 export type Step = {
   name: string;
   uses?: string;
   run?: string;
-  // We can add 'with' and 'env' here later
 };
 
-// 2. UPDATE JobNodeData TO INCLUDE AN ARRAY OF STEPS
 export type JobNodeData = {
   jobName: string;
   runsOn: string;
-  steps: Step[]; // Add this line
+  steps: Step[];
 };
 
 export default function JobNode({ data, isConnectable }: NodeProps<JobNodeData>) {
-  // ... (rest of the component is unchanged)
-  // ... (it just displays jobName and runsOn)
   return (
-    <div className={styles.jobNode}>
+    <div className="rounded-lg bg-white border-2 border-neutral-900 shadow-md font-sans w-[200px]">
       <Handle type="target" position={Position.Top} isConnectable={isConnectable} />
-      <div className={styles.content}>
-        <div className={styles.title}>
+      
+      <div className="px-4 py-2.5">
+        <div className="text-base font-medium text-neutral-900 pb-1 border-b border-gray-200 mb-1">
           <strong>{data.jobName}</strong>
         </div>
-        <div className={styles.details}>
-          <span className={styles.label}>runs-on:</span>
+        <div className="text-sm text-gray-600">
+          <span className="font-semibold text-gray-700 mr-1">runs-on:</span>
           <span>{data.runsOn || 'ubuntu-latest'}</span>
         </div>
-        {/* We can add a "step count" here later if we want */}
       </div>
+      
       <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} />
     </div>
   );

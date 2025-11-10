@@ -1,4 +1,3 @@
-// In app/FlowCanvas.tsx
 'use client';
 
 import React from 'react';
@@ -10,7 +9,6 @@ import ReactFlow, {
   Controls,
   Background,
   NodeTypes,
-  // 1. Import NodeMouseHandler
   NodeMouseHandler,
 } from 'reactflow';
 
@@ -22,7 +20,7 @@ type FlowCanvasProps = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   nodeTypes: NodeTypes;
-  onNodeDoubleClick: NodeMouseHandler; // 2. Add the double-click prop
+  onNodeDoubleClick: NodeMouseHandler;
 };
 
 export default function FlowCanvas({ 
@@ -31,7 +29,7 @@ export default function FlowCanvas({
   onNodesChange,
   onEdgesChange,
   nodeTypes,
-  onNodeDoubleClick, // 3. Destructure the prop
+  onNodeDoubleClick,
 }: FlowCanvasProps) {
   return (
     <div className='w-full h-full border border-primary/10 bg-secondary rounded-2xl'>
