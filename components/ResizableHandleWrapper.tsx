@@ -1,10 +1,11 @@
 "use client";
+
 import React from "react";
 import { ResizableHandle } from "./ui/resizable";
 
 interface ResizableHandleWrapperProps {
   direction?: "horizontal" | "vertical";
-  hoverColorClass?: string; // Use complete class like "group-hover:bg-blue-500"
+  hoverColorClass?: string; 
 }
 
 const ResizableHandleWrapper: React.FC<ResizableHandleWrapperProps> = ({

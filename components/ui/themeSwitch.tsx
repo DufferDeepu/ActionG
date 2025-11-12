@@ -16,9 +16,8 @@ export const ThemeSwitch = ({ className }: ThemeSwitcherProps) => {
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
-    // Set default theme to light on first mount
     if (!theme || theme === "system") {
-      setTheme("light");
+      setTheme("dark");
     }
   }, [theme, setTheme]);
 

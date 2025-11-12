@@ -16,7 +16,8 @@ import { Edge, Node, useEdgesState, useNodesState, NodeMouseHandler, NodeTypes }
 import * as yaml from "js-yaml"; 
 import Toolbox from "./Toolbox";
 import JobNode, { JobNodeData, Step } from './JobNode'; 
-import TriggerNode from './TriggerNode';
+import TriggerNode, { TriggerNodeData, Trigger } from './TriggerNode';
+import TriggerModal from './TriggerModal';
 import JobModal from "./JobModal";
 import { toast } from "sonner";
 
@@ -29,21 +30,24 @@ const initialNodes: Node[] = [
   {
     id: '1',
     type: 'triggerNode',
-    data: { trigger: 'on: push' },
+    data: { 
+      triggers: [
+        { event: 'push', key: 'branches', values: ['main'] }
+      ]
+    },
     position: { x: 200, y: 100 },
   },
   {
     id: '2',
-    type: 'jobNode',
+    type: 'jobNode', 
     data: {
       jobName: 'build',
       runsOn: 'ubuntu-latest',
-      steps: [ // <-- ADD THIS
-        { name: 'Checkout code', uses: 'actions/checkout@v4' },
-        { name: 'Run test script', run: 'npm test' }
+      steps: [
+        { name: 'Checkout code', uses: 'actions/checkout@v4' }
       ]
     },
-    position: { x: 200, y: 250 },
+    position: { x: 200, y: 200 },
   },
 ];
 
@@ -57,10 +61,42 @@ function generateYaml(nodes: Node[], edges: Edge[]): string {
     on: {},
     jobs: {}
   };
-  nodes.filter(n => n.type === 'triggerNode').forEach(n => {
-    const triggerName = n.data.trigger.replace('on: ', '');
-    yamlConfig.on[triggerName] = null;
-  });
+
+  const triggerNode = nodes.find(n => n.type === 'triggerNode');
+  if (triggerNode) {
+    const onConfig: any = {};
+    const triggers: Trigger[] = triggerNode.data.triggers || [];
+
+    triggers.forEach(trigger => {
+      if (trigger.key) {
+        // Check if the values array has content
+        if (trigger.values && trigger.values.length > 0) {
+          // Has values, so output: branches: [main]
+          onConfig[trigger.event] = {
+            [trigger.key]: trigger.values
+          };
+        } else {
+          // Values is empty, so output: branches: null (which prints as "branches:")
+          onConfig[trigger.event] = {
+            [trigger.key]: null
+          };
+        }
+      } 
+      // Case 2: No key (e.g., "workflow_dispatch")
+      else {
+        onConfig[trigger.event] = null;
+      }
+    });
+
+    // Handle simple list (e.g., on: [push, pull_request])
+    const allKeysEmpty = triggers.every(t => !t.key);
+    if (allKeysEmpty && triggers.length > 0) {
+      yamlConfig.on = triggers.map(t => t.event);
+    } else {
+      yamlConfig.on = onConfig;
+    }
+  }
+
   nodes.filter(n => n.type === 'jobNode').forEach(jobNode => {
     const jobName = jobNode.data.jobName;
     const currentJob: any = {
@@ -76,6 +112,7 @@ function generateYaml(nodes: Node[], edges: Edge[]): string {
         return cleanStep;
       })
     };
+    
     const incomingEdges = edges.filter(e => e.target === jobNode.id);
     const dependencies = incomingEdges.map(e => {
       const sourceNode = nodes.find(n => n.id === e.source);
@@ -84,18 +121,21 @@ function generateYaml(nodes: Node[], edges: Edge[]): string {
       }
       return null;
     }).filter(Boolean);
+
     if (dependencies.length > 0) {
       currentJob.needs = dependencies;
     }
     yamlConfig.jobs[jobName] = currentJob;
   });
+
   try {
-    return yaml.dump(yamlConfig, { noRefs: true });
+    return yaml.dump(yamlConfig, { 'noRefs': true, schema: yaml.JSON_SCHEMA });
   } catch (e) {
     console.error(e);
     return "Error generating YAML";
   }
 }
+
 
 export default function Editor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -103,7 +143,8 @@ export default function Editor() {
   const [yamlOutput, setYamlOutput] = useState('');
   const [yamlInput, setYamlInput] = useState(''); 
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
   const [editingNode, setEditingNode] = useState<Node | null>(null);
 
   const idCounter = useRef(3);
@@ -161,14 +202,40 @@ export default function Editor() {
       const jobNameToNodeIdMap = new Map<string, string>();
       let yPos = 50;
       let xPos = 50;
+
       if (configObject.on) {
-        const triggers = Object.keys(configObject.on).join(', ');
+        const triggers: Trigger[] = [];
+        const onConfig = configObject.on;
+
+        if (typeof onConfig === 'string') {
+          // on: push
+          triggers.push({ event: onConfig, values: [] });
+        } else if (Array.isArray(onConfig)) {
+          // on: [push, pull_request]
+          onConfig.forEach(event => {
+            triggers.push({ event, values: [] });
+          });
+        } else if (typeof onConfig === 'object') {
+          // on: { push: { branches: [main] }, ... }
+          Object.keys(onConfig).forEach(event => {
+            const config = onConfig[event];
+            if (config && typeof config === 'object') {
+              const key = Object.keys(config)[0]; // "branches"
+              const values = config[key];        // ["main"]
+              triggers.push({ event, key, values: Array.isArray(values) ? values : [values] });
+            } else {
+              // on: { workflow_dispatch: null }
+              triggers.push({ event, values: [] });
+            }
+          });
+        }
+
         const triggerId = getNewNodeId();
         newNodes.push({
           id: triggerId,
           type: 'triggerNode',
           position: { x: xPos + 150, y: yPos },
-          data: { trigger: `on: ${triggers}` },
+          data: { triggers: triggers }
         });
         yPos += 150;
       }
@@ -217,6 +284,7 @@ export default function Editor() {
       alert('Invalid YAML: ' + (e as Error).message);
     }
   }, [setNodes, setEdges]);
+
   const handleImport = useCallback(() => {
     importYaml(yamlInput);
     toast.success("File imported successfully!");
@@ -228,37 +296,50 @@ export default function Editor() {
   }, [nodes, edges]);
 
   const handleNodeDoubleClick: NodeMouseHandler = useCallback((event, node) => {
-    if (node.type === 'jobNode') {
-      setEditingNode(node);
-      setIsModalOpen(true);
-    }
-  }, []);
+  if (node.type === 'jobNode') {
+    setEditingNode(node);
+    setIsJobModalOpen(true);
+  } else if (node.type === 'triggerNode') { 
+    setEditingNode(node);
+    setIsTriggerModalOpen(true); 
+  }
+}, []);
 
-  const handleModalSave = (nodeId: string, newData: JobNodeData) => {
+  const handleJobModalSave = (nodeId: string, newData: JobNodeData) => {
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === nodeId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              ...newData,
-            },
-          };
+          return { ...node, data: { ...node.data, ...newData } };
         }
         return node;
       })
     );
-    setIsModalOpen(false);
+    setIsJobModalOpen(false);
     setEditingNode(null);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
+  const handleJobModalClose = () => {
+    setIsJobModalOpen(false);
     setEditingNode(null);
   };
 
-
+  const handleTriggerModalSave = (nodeId: string, newData: TriggerNodeData) => {
+     setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return { ...node, data: { ...node.data, ...newData } };
+        }
+        return node;
+      })
+    );
+    setIsTriggerModalOpen(false);
+    setEditingNode(null);
+  };
+  
+  const handleTriggerModalClose = () => {
+    setIsTriggerModalOpen(false);
+    setEditingNode(null);
+  };
 
   return (
     <>
@@ -355,11 +436,19 @@ export default function Editor() {
     </div>
 
    
-      {isModalOpen && editingNode && (
+      {isJobModalOpen && editingNode && (
         <JobModal
-          node={editingNode}
-          onClose={handleModalClose}
-          onSave={handleModalSave}
+          node={editingNode as Node<JobNodeData>}
+          onClose={handleJobModalClose}
+          onSave={handleJobModalSave}
+        />
+      )}
+
+      {isTriggerModalOpen && editingNode && (
+        <TriggerModal
+          node={editingNode as Node<TriggerNodeData>}
+          onClose={handleTriggerModalClose}
+          onSave={handleTriggerModalSave}
         />
       )}
     </>

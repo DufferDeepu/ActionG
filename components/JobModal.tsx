@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Node } from 'reactflow';
 import { JobNodeData, Step } from './JobNode';
 
-// ✅ Import ShadCN dialog components
 import {
   Dialog,
   DialogContent,
@@ -15,6 +14,7 @@ import {
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
+import { Separator } from './ui/separator';
 
 type JobModalProps = {
   node: Node<JobNodeData>;
@@ -61,10 +61,13 @@ export default function JobModal({ node, onClose, onSave }: JobModalProps) {
       <DialogContent className="max-w-lg p-6 bg-background">
         <DialogHeader>
           <DialogTitle>Edit Job: {node.data.jobName}</DialogTitle>
+          <div>
+            <Separator className='' />
+          </div>
         </DialogHeader>
 
         {/* JobName */}
-        <div className="mb-3">
+        <div className="">
           <Label htmlFor="jobName" className="block mb-2 font-semibold">
             Job Name (ID)
           </Label>
@@ -78,7 +81,7 @@ export default function JobModal({ node, onClose, onSave }: JobModalProps) {
         </div>
 
         {/* RunsOn */}
-        <div className="mb-3">
+        <div className="">
           <Label htmlFor="runsOn" className="block mb-2 font-semibold">
             Runs On
           </Label>
@@ -92,9 +95,9 @@ export default function JobModal({ node, onClose, onSave }: JobModalProps) {
         </div>
 
         {/* Steps */}
-        <div className="mb-4">
+        <div className="">
           <Label className="block mb-2 font-semibold">Steps</Label>
-          <div className="border rounded-xl p-2 max-h-[200px] overflow-y-auto">
+          <div className="border rounded-xl p-2 max-h-[200px] overflow-y-auto bg-foreground/5">
             {steps.map((step, index) => (
               <div key={index} className="flex gap-2 mb-2 items-center">
                 <Input
@@ -130,7 +133,7 @@ export default function JobModal({ node, onClose, onSave }: JobModalProps) {
           </div>
           <Button
             onClick={addStep}
-            variant={"outline"}
+            variant={"secondary"}
             className="mt-2 py-2 px-3 w-30 border-none rounded-2xl cursor-pointer"
           >
             + Add Step
@@ -138,7 +141,7 @@ export default function JobModal({ node, onClose, onSave }: JobModalProps) {
         </div>
 
         {/* Actions */}
-        <DialogFooter className="flex justify-end gap-2 mt-2">
+        <DialogFooter className="flex justify-end gap-2">
           <Button
             onClick={onClose}
             className="py-2 px-4 border-none rounded-2xl text-base cursor-pointer"
