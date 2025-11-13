@@ -45,7 +45,7 @@ export const ThemeSwitch = ({ className }: ThemeSwitcherProps) => {
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       <motion.div
-        className="absolute h-6 w-10 rounded-xl bg-primary"
+        className="absolute h-6 w-8.5 rounded-xl bg-primary"
         animate={{
           x: isDark ? 36 : 0,
         }}
