@@ -26,10 +26,10 @@ jobs:
                 ${{ runner.os }}-bun-
 
             - name: Install dependencies
-              uses: bun install --frozen-lockfile
+              run: bun install --frozen-lockfile
 
             - name: Build Next.js app
-              uses: bun run build
+              run: bun run build
             
 
 
