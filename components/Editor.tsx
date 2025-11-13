@@ -11,7 +11,7 @@ import FlowCanvas from "./FlowCanvas";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import ResizableHandleWrapper from "./ResizableHandleWrapper";
-import { CopyIcon, Plus, UploadIcon } from "lucide-react";
+import { CopyIcon, Plus, RefreshCcw, UploadIcon } from "lucide-react";
 import { Edge, Node, useEdgesState, useNodesState, NodeMouseHandler, NodeTypes } from "reactflow";
 import * as yaml from "js-yaml"; 
 import Toolbox from "./Toolbox";
@@ -356,9 +356,19 @@ export default function Editor() {
             {/* --- Top Section --- */}
             <ResizablePanel defaultSize={45} className="h-full">
               <div className="p-2 flex flex-col h-full bg-secondary rounded-2xl border border-primary/10">
-                <h5 className="font-medium tracking-tight mb-1 ml-2">
+                <div className="flex items-center justify-between mb-1">
+                  <h5 className="font-medium tracking-tight mb-1 ml-2">
                   Import <span className="font-bold">YAML</span>
-                </h5>
+                  </h5>
+                  <Button 
+                  className="w-fit" 
+                  onClick={() => {
+                    setYamlInput('');
+                  }}                
+                  >
+                  <RefreshCcw className="size-3.5" />
+                </Button>
+                </div>
                 <div className="flex-1 flex flex-col items-center">
                   <Textarea
                     className="flex-1 w-full border resize-none"

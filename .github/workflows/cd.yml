@@ -1,0 +1,35 @@
+name: Continuous Deployment
+
+on:
+    push:
+        branches: [main]
+    pull_request: 
+        branches: [main]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v1
+              with:
+               bun-version: latest
+
+            - name: Cache Bun dependencies
+              uses: actions/cache@v4
+              with:
+               path: ~/.bun/install/cache
+               key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+               restore-keys: |
+                ${{ runner.os }}-bun-
+
+            - name: Install dependencies
+              uses: bun install --frozen-lockfile
+
+            - name: Build Next.js app
+              uses: bun run build
+            
+
+
