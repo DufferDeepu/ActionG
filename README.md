@@ -1,11 +1,10 @@
 <h1 align="center">ActionG</h1>
-An interactive open-source visualizer for your GitHub Actions workflows.
 
 <p align="center">
 An interactive open-source visualizer for your GitHub Actions workflows.
 </p>
 
-![GithubBanner](./app/opensource.png)
+![GithubBanner](./public/opensource.png)
 
 ## Why ActionG?
 
