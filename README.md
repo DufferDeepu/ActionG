@@ -3,6 +3,9 @@
 <p align="center">
 An interactive open-source visualizer for your GitHub Actions workflows.
 </p>
+<p align="center">
+😫 Stop the "push-and-pray" cycle. Visually build, import, and edit your CI/CD pipelines, and get perfect, ready-to-commit YAML in seconds.
+</p>
 
 ![GithubBanner](./public/opensource.png)
 
@@ -10,8 +13,7 @@ An interactive open-source visualizer for your GitHub Actions workflows.
 
 - Visually build your CI/CD pipeline, import existing YAML to see a graph, and generate perfect code back instantly.
 
-- 😫 Stop the "Push-and-Pray" Cycle<br>
-Writing GitHub Actions YAML is a slow, frustrating loop: edit, commit, push, wait 5 minutes, watch it fail, and repeat. Action Visualizer fixes this by giving you a live, visual editor with instant feedback.
+- Writing GitHub Actions YAML is a slow, frustrating loop: edit, commit, push, wait 5 minutes, watch it fail, and repeat. Action Visualizer fixes this by giving you a live, visual editor with instant feedback.
 
 - It's an authoring tool designed to help you build and refactor your workflows before you ever commit.
 

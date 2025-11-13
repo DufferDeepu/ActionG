@@ -20,7 +20,7 @@ export default function Navbar() {
           </h5>
           <Separator orientation="vertical" className="m-2 h-6" />
           <Link
-            href="https://x.com/intent/tweet?text=Check%20out%20Gradii%20-%20A%20beautiful%20open-source%20gradient%20generator%20tool%0A%0Ahttps%3A%2F%2Fgithub.com%2Fkeshav-exe%2Fwallpaper-app"
+            href="https://x.com/intent/post?text=%F0%9F%98%A9%20Stop%20the%20%22push-and-pray%22%20cycle.%0A%0AVisually%20build%2C%20import%2C%20and%20edit%20your%20CI%2FCD%20pipelines%20%E2%9C%A8%20Get%20perfect%2C%20ready-to-commit%20YAML%20in%20seconds.%0A%0ACheckout%20ActionG%20%E2%80%94%20an%20open-source%20visualizer%20for%20your%20GitHub%20Actions%20workflows.%0A%0Ahttps%3A%2F%2Fgithub.com%2Fdufferdeepu%2FActionG"
             target="_blank"
           >
             <Button variant="ghost" size="icon">
